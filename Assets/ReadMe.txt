@@ -127,3 +127,42 @@
 			fixed4 color = matrix._m00_m01_m02_m03
 	- It is also possible to grab an entire row of values using the row index and put them directly into an array of the same size => fixed4 color = matrix[0]
 	
+----------------------------- The Anatomy Of A Mesh And Shader Input -----------------------------
+* The most efficient way to store a mesh is by using triangles, therefore most models will be constructed from them.
+  A triangle is also referred to as a polygon. It has three vertices, one in each corner, with a coordinate representing its location in 3D space, a flat surface connecting the 
+  vertices and a surface normal.
+  Each vertex also has its own normal.
+  A normal is a vector extending from the point of origin at 90 degrees to the surface. Normals are especially important in computer graphics as they indicate the side of the polygon that
+  the texture should be applied to. They are also calculating how an object is shaded by determining how light hits the surface.
+  
+* A mesh is stored as a series of ARRAYS that store all the information about the vertices and normals:
+	1) Vertex array: holding each corners 3D coordinates. The coordinates of every vertex are listed here.
+	2) Normal array: holding each of the vertices normals. For each of the vertices, a normal is also recorded in here
+	3) UV array: specifies how a texture is wrapped onto a model. It indicates how different parts of a 2D texture are mapped to each 3D vertex. UV's are specified in 2D space
+	4) Triangle array: array of each individual polygon triangle. It lists vertices in groups of three, where each tuple represents a single triangle making up the surface of the mesh
+	
+* UV's represents a point on a texture that is mapped to a point on a polygon. It is represented by the letters u,v and w. The 'w' is only used internally for calculations, which leaves
+  the UV as a 2D value and also gives the UV its name.
+	- UV values fall between 0 and 1. No matter how big the texture, 0 represents the smallest pixel value in the image and 1 the largest. Think of it like a percentage rather then an
+		exact location
+	- UV's belong to each vertex and are always ordered in anti-clockwise order on the face in which the normal faces the viewer
+	- Note: not all the texture needs to be applied to the polygon and that is the very purpose of UV's
+	- Meshes can have more then one set of UV's. This can be the case when more then one image is applied over its surface. In Unity, 2 sets of UV's are allowed. UV's can be added
+	  programmatically, but are usually specified inside 3D modeling packages at the time the model has the texture applied.
+	  
+* Options to grab data about the mesh	
+	1) Get hold of the UV values with 'uv' or 'uv2', followed by the name of the texture. This data can be used to put a texture onto the mesh
+		==> float2 uv_MainTex;
+		==> float2 uv2_MainTex;
+	2) Information about the angle at which a model is being viewed from by using the 'viewDir'. This allows to write shaders that can change the surface of a model depending on where
+	   the camera is.
+		==> float3 viewDir;
+	   One example of this is rim lighting
+	3) Get the coordinates of the vertex being processed by using 'worldPos', which allows to perform operations on the shader based on the world location
+		==> float3 worldPos;
+	   An example of this would be to show or not to show, a material on the surface of an object based on its physical world location
+	4) Information on how to reflect an image off the surface of a model. This comes in handy if you want to create a shiny looking object that has a mirror finish
+		==> float3 worldRefl;
+		
+* SUMMARY: the 3D mesh has many values that are required to manipulate how a material will visually present on a surface, and it is the job of the input struct to get these values
+		   to your shader function

@@ -16,8 +16,8 @@
 
 			struct Input { // <-- Declares the input data that will be required by the function
 						   // <-- This can include vertex, normal, UV and other information about the models mesh
-				float2 uvMainTex;
-			};
+				float2 uvMainTex; // <-- Declare any values from the mesh that you will need to manipulate in the shader function
+			};					  // <-- the surface shader function below requires an input, even if it is not doing anything
 
 			fixed4 _myColor;     // <-- To access any property created, list them and the type of data then contain
 			fixed4 _myEmission;	 // <-- Refer to the property by the name. fixed4 is a special shader data type (array of 4 values)
