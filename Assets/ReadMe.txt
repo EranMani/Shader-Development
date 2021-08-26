@@ -79,3 +79,51 @@
 		
 	- Some links for future reference:
 		1) https://www.habrador.com/tutorials/math/1-behind-or-in-front/
+		
+		
+#####################################################################################
+################################# SHADER ESSENTIALS #################################
+#####################################################################################
+
+----------------------------- Variables & Packed Arrays -----------------------------
+* Shader code is quite different. It uses the Unity ShaderLab to write the code. We are writing enough code to compile into a shader 
+* Shader code is executed on a per-vertex or per-pixel basis. That means that the code you write, you write as though you are only writing for one pixel. You dont need to write 
+  loops that process all of the pixels that need to appear on the screen. The GPU does the rest.
+* Another difference between normal code like C# and shaders are the variables and arrays. Shader code has similar data types but they have been designed to be more efficient
+	- (Shader) float: highest precision, 32 bits like a regular c# float. Used for world positions, texture coordinates and calculations
+	- (Shader) half: half sized float, 16 bits. Used for short vectors, directions and dynamic color ranges
+	- (Shader) fixed: lowest precision, 11 bits. Used for regular colors and simple color operations
+	- (Shader) int: used for counters and array indices
+	
+* There are also data types for textures:
+	- sampler2D: used for regular images
+	- samplerCUBE: used for cube maps
+	
+	- Each of these has a high ad low precision version:
+		* Low precision -> sampler2D_half
+						   samplerCUBE_half
+		* High precision -> sampler2D_float
+							samplerCUBE_float
+							
+* Any of these data types can be made into special arrays used in shaders PACKED ARRAYS. To create a packed array, the syntax only requires a number representing the length 
+  of the array to be placed on the end of the data type name. Values can be placed into the array when the array is declared using a bracketed string of values
+	- Example: fixed4 color1 = (0,1,1,0)
+	- In a packed array, the values are accessed more like those you get out of a structure. 
+	  In an array of length 4, the values can be accessed using r,g,b,a OR x,y,z,w ==> fixed4 color1 = (0,1,1,0), color1.r = 0, color1.x = 0, color1.r == color1.x
+	- With packed arrays, you can put multiple values into them in one line, as well as being able to copy values between different sized packed arrays
+		fixed3 color3;
+		color3 = color1.rgb => assign to color3 the first 3 values of the color1 variable
+	- When listing indices, you can not mix up the sets. However, you can reorder the indices to put the array values in a different order
+	- Smearing: process of filling all positions in the array with the same value, using a single value
+	- Masking: when dealing with packed arrays to copy over as many values as you like from one array to another, in any order
+	
+* Many calculations in computer graphics require data structures bigger then arrays and therefore use MATRICES. Information for world geometry states, transformations, rotations
+  and scales are all performed by matrices. For that, shaders have another data structure called a PACKED MATRIX.
+	- A packed matrix is declared using the data type followed by the number of rows multiplied by the number of columns => float4x4 matrix;
+	- Accessing individual values in the matrix is achieved using _mRowColumn => float myValue = matrix._m00;
+	- Packed matrices also have shortcuts for getting at the values contained within. A syntax called CHAINING allows you to specify a string of values from a matrix to go into an array.
+	- Example: 		fixed4x4 matrix;
+						CHAINING
+			fixed4 color = matrix._m00_m01_m02_m03
+	- It is also possible to grab an entire row of values using the row index and put them directly into an array of the same size => fixed4 color = matrix[0]
+	
