@@ -166,3 +166,22 @@
 		
 * SUMMARY: the 3D mesh has many values that are required to manipulate how a material will visually present on a surface, and it is the job of the input struct to get these values
 		   to your shader function
+		   
+		   
+----------------------------- Shader Properties -----------------------------
+* Properties are the way we get values from the inspector into the shader
+* The list of available properties are:
+	1) _myColor("Example Color", Color) = (1,1,1,1)
+	2) _myRange("Example Range", Range(0,5)) = 1
+	3) _myTex("Example Texture", 2D) = "white" {}
+	4) _myCube("Example Cube", CUBE) = "" {} => to achieve things like environment reflections
+	5) _myFloat("Example Float", Float) = 0.5
+	6) _myVector("Example Vector", Vector) = (0.5,1,1,1)
+	
+* Each property type is stored as one of the data type:
+	1) fixed4 _myColor;
+	2) half _myRange;
+	3) sampler2D _myTex;
+	4) samplerCUBE _myCube;
+	5) float _myFloat;
+	6) float4 _myVector;
