@@ -185,3 +185,23 @@
 	4) samplerCUBE _myCube;
 	5) float _myFloat;
 	6) float4 _myVector;
+	
+	
+	
+#######################################################################################
+############################### Illuminating Surfaces #################################
+#######################################################################################
+
+----------------------------- Lambert And Lighting -----------------------------
+* A lighting model is used to calculate the amount of reflected light from a surface. It considers 3 things:
+	1) Normal vector of the surface
+	2) The vector to the viewer of the surface
+	3) The vector to the lightsource
+* Lighting in computer graphics is all about calculating the intensity and color of the light reaching the viewer. This involves computing the angles between the vectors above
+* Lambert is a lighting model that defines the relationship between the brightness of a surface and its orientation to the light source. It is the simplest lighting model
+  and it only considers one angle, that between the source and the normal of the surface.
+  When the angle is very small, the source is close to being directly over the top of the surface ==> gives a maximum brightness
+  When the angle is large, but less then 90 degrees ==> the surface is less bright
+  When the angle is large, but greater then 90 degrees, the source is on the other side of the surface and therefore not affecting it
+* Understanding the vectors involved in lighting models and writing your own shaders go hand in hand as it is the programmatic modification of these that allows to create many
+  special effects
