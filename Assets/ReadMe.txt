@@ -205,3 +205,42 @@
   When the angle is large, but greater then 90 degrees, the source is on the other side of the surface and therefore not affecting it
 * Understanding the vectors involved in lighting models and writing your own shaders go hand in hand as it is the programmatic modification of these that allows to create many
   special effects
+  
+  
+-------------------------------- Normal Mapping --------------------------------
+* Modify the normal vector of the surface to generate a raised texture on a flat surface
+* The Lambert lighting model is going to give a flat looking surface with the same brightness over the entire surface. What if you could determine a whole bunch of normals across
+  the surface and then manipulate them?
+* Normal Map
+	- Used for manipulating the normals used for the lighting calculations
+	- Instead of having one normal on a flat surface, a normal map produces one for each pixel but it doesnt just make more normals - it changes their direction as well
+	- When the brightness is calculated using the position of the light source, each normal is going to give a different brightness value
+	- These normals are only for visual effects, they do not modify the geometry of the mesh
+	- Each pixel in a normal map is stored as an RGB color value
+		* The values for each channel that range from 0-255 are mapped into X,Y and Z values
+		* Reds between 0-255 become an X-value between -1 and 1
+		* Green is mapped the same for Y
+		* Blue is only mapped between 128-255 to a Z-value between 0 and -1, using only mid to high blue channel values. That is what gives the texture its blue tinge.
+	- For each pixel of the normal map, the RGBA channels are converted into X,Y,Z values that represent a vector. This vector becomes a normal at that pixel location.
+	  X and Y values lie vertical and horizontal across the screen, with the positive Z-axis going into the screen.
+	  That makes any normal on the side of the image facing the viewer (which should be coming out of the screen) have a negative Z-value
+	Examples:
+		1) A pixel with value (97,100,248) becomes the vector (-0.2, -0.2, -0.9)
+		2) A light pink pixel value (196,129,235) will become the vector (0.5, 0, -0.9)
+		3) A pixel with more yellow value (213,198,150) gives a normal of (0.6, 0.5, -0.6)
+		NOTE: The less blue in a pixel, the flatter the normal. This means that fully blue areas represent bright areas (areas facing towards the viewer)
+		      others away making them duller and giving them the illusion of shadows
+	- BUMP MAPPING
+		* Produces great depth results on the the cheap, but it is limited as it only creates visual effects and not a geometric one
+		* Perfect way to get detail and depth into a model for a very little cost to processing
+		* It relies on where the source and the direction of the light it
+		* Normal mapping is a version of bump mapping
+	- All above allows to add visual bumps to the surface of a model, where none exist geometrically
+	- To increase the intensity of the normal map, calculations on the vectors that are being generated are needed
+		* The Z axis of the surface vector represents brightness, not depth
+		* The bright areas should stay bright, while the dark areas should be more darker. To do this, you can play around with the X and Y values of the vector. The Z shouldnt be
+		  modified at all
+	
+* Diffuse map
+	- Color the albedo of an object. It simply provides a color to put on the mesh and nothing more
+	- Lambert lighting treats it as flat, and lights it evenly across the surface
