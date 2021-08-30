@@ -254,3 +254,27 @@
 * Diffuse map
 	- Color the albedo of an object. It simply provides a color to put on the mesh and nothing more
 	- Lambert lighting treats it as flat, and lights it evenly across the surface
+	
+
+-------------------------------- Illumination Models --------------------------------
+* worldRefl
+	- World reflection
+	- A vector stored in the model indicating which parts of a cube map should be mapped to which parts of the model
+	- The world reflection vector is used to pick the parts of a cubemap, to map to the models emission output
+	
+* Normal vector
+	- The vectors are constantly recalculated for the points on the model as the model turns, because their values are determined by how the model appears in screen space
+	- If you compare the normals with the world reflection vectors, you will see that the normals are blended across the surface, giving a smooth appearance, whereas the others
+	  have much harder divisions
+	  The normals across the surface of each polygon are being calculated on a per-pixel basis, rather then using the geometric normals at each vertex
+	- How the normal data from a model is dealt with depends on the illumination models:
+		1) Flat - the simplest and least computationally heavy as it uses a single normal (usually the one that comes with the mesh) to shade each polygon.
+				  That gives the entire surface of a polygon the same color and makes it appear flat.
+		2) Gouraud - the color of pixels across the surface of a polygon are determined through interpolation of the colors at each vertex. This results in a blended shading effect
+					 across each polygon. 
+					 This shading works OK, until you add highly localized light. If a light is focused on a single polygon, its values are not transferred to neighboring polygons.
+		3) Phong - the flat surface is made to appear curved by modifying the normals on a per-pixel basis across the polygon. Taking the actual normals at each vertex, the ones
+				   across the surface are calculated as an interpolation of one to another. This results in a blended shading across each polygon.
+				   This shading model is used today to provide a much smoother appearance and used in Unity by default
+				   
+* Shaders are a complex soup of geometry, color and lighting
