@@ -212,6 +212,9 @@
 * The Lambert lighting model is going to give a flat looking surface with the same brightness over the entire surface. What if you could determine a whole bunch of normals across
   the surface and then manipulate them?
 * Normal Map
+	- One thing normals are used for is determining brightness. This brightness in the Lambert lighting model is determined by the angle between the normal and the light source.
+	  The more a normal faces the viewer, the stronger the brightness at that point on the surface.
+	- They usually have a length of 1 when used in many mathematical computations
 	- Used for manipulating the normals used for the lighting calculations
 	- Instead of having one normal on a flat surface, a normal map produces one for each pixel but it doesnt just make more normals - it changes their direction as well
 	- When the brightness is calculated using the position of the light source, each normal is going to give a different brightness value
@@ -240,6 +243,13 @@
 		* The Z axis of the surface vector represents brightness, not depth
 		* The bright areas should stay bright, while the dark areas should be more darker. To do this, you can play around with the X and Y values of the vector. The Z shouldnt be
 		  modified at all
+	- If you change the Z value you will undoubtedly change the length as the normal starts to lean over. This will change the ANGLE. The only time you WONT change the angle 
+	  is when Nx, Ny and Nz are changed equally and in this case the brightness doesn't change because the angle hasn't changed
+	  
+	NOTE: Remember when using a shader, YOU become the viewer and the Z axis is coming out of the computer screen at YOU.  Not the viewer game object shown in the scene
+	NOTE: If you manipulate the Nz of the shader to the extreme you'll see the side of the sphere get brighter. 
+	      This is because you have bent the normals around to be facing more toward and away from you.
+		  If you make Nz negative, the normals will start to turn away from you and you'll see the brightness diminishing.
 	
 * Diffuse map
 	- Color the albedo of an object. It simply provides a color to put on the mesh and nothing more
