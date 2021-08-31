@@ -278,3 +278,50 @@
 				   This shading model is used today to provide a much smoother appearance and used in Unity by default
 				   
 * Shaders are a complex soup of geometry, color and lighting
+
+
+-------------------------------- Buffers And Queues --------------------------------
+* A pixel makes its ultimate journey from a point on a surface of a mesh to a point on the screen via the shader and into the frame buffer.
+* Frame Buffer: a computer memory structure that holds the color information about every pixel that appears on the screen. The color has been calculated a variety of ways to includes
+				geometry, textures, lighting and other computations
+				
+* Depth/Z Buffer: has the same dimensions as the frame buffer, but holds depth information for each pixel. 
+				  As each pixel is added to the frame buffer, its depth is recorded in the Z buffer. However, before a pixel is added to the frame buffer, it is first tested to see 
+				  if there is a corresponding value already in the Z buffer. If there is, it means that the same pixel in the frame buffer has already been given a value.
+				  If the pixel trying to be added has a smaller depth value than the one already in the Z buffer, it means that it must be closer to the camera and therefore its color
+				  should replace the one already in the frame buffer and then its depth is added to the Z buffer.
+				  This way, only pixels closest to the camera end up getting rendered.
+				  
+* Unity generally renders a scene front-to-back. This means furthest things away from the camera are drawn last. The closest object's pixels are added to the frame buffer first, as well
+  its depth information which is added to the Z buffer. Then the pixels of the furthest object are checked. If there is already a depth value in the Z buffer, then the new pixel 
+  information is ignored.
+  This helps to reduce the need to write pixels into the frame buffer twice. Anything behind something is simply ignored.
+  In the shader code, you can turn the Z buffer writing off by including the line - ZWrite Off
+  
+* Render Queues
+	- Control the draw ordering of objects
+	- The rendering queues are, in order:
+		1) Background
+		2) Geometry -> used by default in shaders until now
+		3) AlphaTest
+		4) Transparent
+		5) Overlay
+	- The queues can be used in the shaders to force when objects are drawn. This setting can be found in the inspector
+	- There is an option to specify the queue to use inside the shader code using the tag "Queue" -> Tags {"Queue" = "Geometry"}. You can also add custom values, for example adding
+	  a value to the existing geometry queue would make objects with your shader draw AFTER other geometry objects, and depending on information in the Z buffer, that could bring your
+	  object to the front
+	- G buffer: geometry buffer which is used in deferred rendering, one of two techniques used to order the rendering pipeline operations around the shader. The other is 
+	            forward rendering, where the object goes from Geometry => Vertex Shader => Geometry Shader before landing in the frame buffer.
+				In deferred rendering, the geometry gets processed the same way with the exception of lighting. All the information about the geometry (albedo, depth, normal and 
+				specular highlights) are stored in the G-buffer. The lighting is then the final step before the pixels land in the frame buffer
+	- The difference between the forward and deferred rendering comes when rendering many objects
+		* In forward rendering, each objects follows its own render path, which includes a lighting calculation. That is, for each object - all lights in the environment need to be
+		  calcaulted. The more lights, the more calculations.
+		* In deferred rendering, the lighting is only done on the G-buffer after the scene objects have been collated, therefore lighting calculations only happen once per light.
+		
+		NOTE: the deferred rendering is the preferred way to do things if you have many lights
+		NOTE: the deferred rendering cannot display transparent objects correctly by default, because they are see-through objects and they need to display any lighting effects behind them,
+		      and because lights are calculated at the end, they can't.
+			  
+		* You can change the rendering path pipeline in the graphics settings
+				
