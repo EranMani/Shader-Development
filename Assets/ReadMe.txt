@@ -357,3 +357,7 @@
 		* Any normals that make a dot product with the view vector close to 1, will represent faces of the model that face (or sit quite perpendicular) to the viewer
 		* Any normal close to zero will belong to the faces that are around the edges of the model
 		* Any normal less then 1 will be on the other side of a polygon that the viewer can not see
+		
+		
+-------------------------------- Rim Lighting --------------------------------
+* Rim lighting/Shading is coloring around the edges of a model respective to the viewers location
