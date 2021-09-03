@@ -325,3 +325,35 @@
 			  
 		* You can change the rendering path pipeline in the graphics settings
 				
+				
+#######################################################################################
+################################## Dot Product ########################################
+#######################################################################################
+* The dot product of two vectors (A & B) is written a.b, and can be calculated in two ways
+	1) Multiply the length of each vector together with the cosine of the angle between them
+	2) Multiply each individual coordinate of one vector with the other and then adds them all together 
+	
+* In CG, the dot product can be calculated with the dot function => half dotp = dot(IN.viewDir, o.Normal); <=
+	- Given two vectors, such as the viewing direction and the surface normal, a dot product can be calculated
+	
+* Why use that?
+	- With normal maps, you can color pixels differently on certain parts of an object. With the dot product, you can process a surface based on where you were looking at it from
+	- The dot product can produce effects such as rim lighting, outlining and anisotropic highlights
+	- The dot product can tell us if two vectors are:
+		1) Pointing in the same direction
+		2) Pointing in opposite directions
+		3) At 90 degrees
+		4) Somewhere in between
+	- When two vectors are normalized to their unit length of 1, the dot product for parallel vectors equates to 1. When they face opposite directions, the dot product is -1, and
+	  when they are at right angles, the dot product is 0
+	- If one of those vectors represents the normal on a polygon, then you can also deduce the side of the polygon the other vector is on:
+		1) For a positive dot product, the vector is on the same side
+		2) For a negative dot product, the vector is on the underside
+		3) For a dot product of 0, it is lying on the surface
+	- With the dot product results you can build custom shaders based on the direction of the viewer relative to an object. The viewer is always perceiving the virtual environment 
+	  from their position behind the computer screen, and hence thats where the viewer direction comes from
+	- Given the view direction and all the normals on the model, you can use a dot product to determine which sides of the mesh are facing toward the viewer and those that are facing
+	  away. You can also tell how MUCH they are facing the viewer
+		* Any normals that make a dot product with the view vector close to 1, will represent faces of the model that face (or sit quite perpendicular) to the viewer
+		* Any normal close to zero will belong to the faces that are around the edges of the model
+		* Any normal less then 1 will be on the other side of a polygon that the viewer can not see
