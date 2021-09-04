@@ -361,3 +361,54 @@
 		
 -------------------------------- Rim Lighting --------------------------------
 * Rim lighting/Shading is coloring around the edges of a model respective to the viewers location
+
+
+
+
+#######################################################################################
+#################################### Lighting #########################################
+#######################################################################################
+-------------------------------- Lighting Models --------------------------------
+* Lambert
+	- gives us diffuse lighting. It is a simple model and quite fast rendering which uses only the surface normal and the source vector in its calculation
+	- Not very good at generating reflections and highlights (from light sources)
+	
+* Phong
+	- Considers the viewers location, as well as how light reflects from a surface
+	- It includes the calculation of specular reflection or how light bounces off a surface
+	- A reflection will be at its strongest when the outgoing angle is equal to the incoming angle. On either side of the outgoing angle, the reflection is said to fall-off.
+	  How much it falls off depends on the quality of the surface, where shinier objects have a quicker fall off.
+	- The amount of reflection the viewer sees will depend on the angle between the reflection vector and the vector to the viewer
+	- With a slow fall-off, the reflection loses strength gradually away from the reflection vector and spreads the shine out across the surface. A faster fall-off causes the shine
+	  to diminish rapidly, out from the reflection vector and makes the object appear far glossier
+* Blinn/Phong 
+	- This model is an improvement on Phong, as it reduces the need to calculate the reflection vector (which requires a cosine operation)
+	- It is a far more efficient specular reflection model then Phong alone
+	- Introduce an additional vector to the Phong which is called the HALFWAY vector
+	- This vector sits halfway between the source and the viewer
+	- The equation for HALFWAY vector => h(halfway) = s(source) + v(viewer)
+	- The angle between the normal and the halfway is then used to work out the intensity
+	
+* PBR (Physically Based Rendering)
+	- Focuses on seven areas:
+		1) Reflection - drawing rays from the viewer to the reflective surface and then calculating where it bounces off. It is a reverse calculation to lighting
+		2) Diffusion - examines how color and light are distributed across the surface by considering what light is absorbed and what is reflected and how
+		3) Translucency and Transparency - examines how light can move through objects and render them fully or partly see-through
+		4) Conservation of energy - ensures objects never reflect more light then they receive, unless that object is a perfect mirror finish. Then, it wil absorb light depending
+									on the surface. However, some lights will always be reflected and available to light other objects
+		5) Metallicity - considers the interaction of light on shiny surfaces and the highlights and colors that are reflected. Metals tend to be highly reflective, with very little
+						 in the way of diffuse light
+		6) Fresnel reflectivity - examines how reflections on a curved surface become stronger towards the edges. The fresnel reflection is how real-world reflection works on a 
+							      curved surface, with the reflections being much stronger on the edges and fading towards the center.
+								  This effect will vary as the different surface types change. However, you will never get the perfect straight line of the horizon in a curved
+								  surface as you do with the normal reflection
+		7) Microsurface scattering - suggets that most surfaces are going to contain grooves or cracks that will reflect the light at different angles other then those dicatated
+									 by a regular surface
+									 
+* Vertex VS Pixel lighting
+	- Vertex lighting is Gouraud shading in reverse, where the incoming light is calculated at each vertex and then averaged across the surface
+	- Pixel lighting is a phong-like, where a light for each pixel is calculated
+	- Pixel lighting benefits over vertex lighting, as Phong shading benefis over Gouraud
+	- Pixel lit will pick up far more detailed specular highlights then vertex, as the light is calcualted for every point. It provides far more detailed shading, but requires more
+	  processing. Vertex lit suits for older graphic cards or mobile devices, or maybe when there are many things to render where the quality doesnt really matter so much
+	
