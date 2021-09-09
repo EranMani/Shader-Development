@@ -26,7 +26,8 @@
             float spec = pow (nh, 48.0); // 48 is what Unity uses
 
             half4 c; // Color of the pixel, including the alpha value as well
-            c.rgb = (s.Albedo * _LightColor0.rgb * diff + _LightColor0 * spec) * atten;
+            // c.rgb = (s.Albedo * _LightColor0.rgb * diff + _LightColor0 * spec) * atten;
+            c.rgb = (s.Albedo * _LightColor0.rgb * diff + _LightColor0.rgb * spec) * atten * _SinTime;
             c.a = s.Alpha;
             return c;
         }
