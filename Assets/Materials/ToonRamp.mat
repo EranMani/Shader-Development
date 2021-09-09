@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: ToonRamp
-  m_Shader: {fileID: 4800000, guid: b4c43bae1cabcfe4aa789a25039a34a6, type: 3}
+  m_Shader: {fileID: 4800000, guid: 321c62b2506b4e04f85d18e6ff9289f8, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
