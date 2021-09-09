@@ -419,6 +419,8 @@
 	  should not be shiny. When you get black, the channel value going through to smoothness will be 0.
 	  So, 0 smoothness will occur on black areas on the map, and full smoothness will occur on white areas on the map
 	  
+	  NOTE: when adding emission level on the metallic map, it is enough to adjust only one channel
+	  
 	- Specular
 		* The specular itself is a fixed3 value, so it is going to take an RGB value. It is the color of the specular lighting or the specular highlights
 		
