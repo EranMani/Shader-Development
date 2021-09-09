@@ -405,10 +405,34 @@
 		7) Microsurface scattering - suggets that most surfaces are going to contain grooves or cracks that will reflect the light at different angles other then those dicatated
 									 by a regular surface
 									 
+	- Unity includes two physically based shaders:
+		1) The standard
+		2) The standard specular
+		
+		The difference are similar to those between lambert and blinnPhong. 
+		However, each of these PBR shaders has its own output structure. The only difference is:
+			* The standard PBR system works with a metallic value, and the standard specular PBR works with the specular value
+			* Instead of gloss and to facilitate microsurface scattering, both have a smoothness setting
+			
+	- The metallic texture will define which parts of the model will be shiny and which ones are dont. 
+	  This map should be a greyscale image, so that all channels values will be the same. Then, you can paint on the image with black color to indicate that this areas
+	  should not be shiny. When you get black, the channel value going through to smoothness will be 0.
+	  So, 0 smoothness will occur on black areas on the map, and full smoothness will occur on white areas on the map
+	  
+	  NOTE: when adding emission level on the metallic map, it is enough to adjust only one channel
+	  
+	- Specular
+		* The specular itself is a fixed3 value, so it is going to take an RGB value. It is the color of the specular lighting or the specular highlights
+		
+	- Matallic VS Specular
+		* Metallic tends to be the surface and affects what is going on on the surface and the quality of the surface
+		* Specular is the light being reflected from an object
+									 
 * Vertex VS Pixel lighting
 	- Vertex lighting is Gouraud shading in reverse, where the incoming light is calculated at each vertex and then averaged across the surface
 	- Pixel lighting is a phong-like, where a light for each pixel is calculated
 	- Pixel lighting benefits over vertex lighting, as Phong shading benefis over Gouraud
 	- Pixel lit will pick up far more detailed specular highlights then vertex, as the light is calcualted for every point. It provides far more detailed shading, but requires more
 	  processing. Vertex lit suits for older graphic cards or mobile devices, or maybe when there are many things to render where the quality doesnt really matter so much
+	  
 	
