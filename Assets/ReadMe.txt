@@ -435,4 +435,17 @@
 	- Pixel lit will pick up far more detailed specular highlights then vertex, as the light is calcualted for every point. It provides far more detailed shading, but requires more
 	  processing. Vertex lit suits for older graphic cards or mobile devices, or maybe when there are many things to render where the quality doesnt really matter so much
 	  
+	  
+##################################################################################################
+#################################### PASSES AND BLENDING #########################################
+##################################################################################################
+--------------------------------------- Alpha Channel ---------------------------------------
+* It is the 4th pixel value after the RGB in the color
+* It represents how transparent that particular pixel is. This transparency is used when compositing with several images
+* The alpha channel allows to make objects transparent and see through
+* It is used to mask sections of an image off, so that only parts of that image are visible
+* It is useful in games for creating billboards that have simple geometry and can be used on maps
+* Transparency objects do not write to the Z buffer, so they always end up at the end of the pipeline and they should happen after everything else
+https://docs.unity3d.com/Manual/HOWTO-alphamaps.html
+	  
 	
