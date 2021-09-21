@@ -449,3 +449,8 @@
 https://docs.unity3d.com/Manual/HOWTO-alphamaps.html
 	  
 	
+--------------------------------------- Stencil Buffer ---------------------------------------
+* The stencil buffer is a pixel mask that allows to further control of what pixels make it from the scene into the frame buffer. This means that you can put all types of complicated
+  masks into it which can prevent parts of objects from showing
+* One object that writes to the stencil buffer can prevent some pixels of other objects not being drawn, kind of like a cardboard. 
+* The object writing to the stencil buffer may or may not be drawn depending on its purpose
