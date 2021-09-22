@@ -7,7 +7,7 @@
     SubShader
     {
         // Get to the stencil buffer first
-        Tags { "Queue"="Geomtery-1" }
+        Tags { "Queue"="Geometry-1" }
 
         // Make the object invisible
         ColorMask 0

@@ -6,7 +6,7 @@
     }
         SubShader
     {
-        Tags { "Queue" = "Geomtery" }
+        Tags { "Queue" = "Geometry" }
 
         Stencil
         {
