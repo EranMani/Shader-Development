@@ -454,3 +454,21 @@ https://docs.unity3d.com/Manual/HOWTO-alphamaps.html
   masks into it which can prevent parts of objects from showing
 * One object that writes to the stencil buffer can prevent some pixels of other objects not being drawn, kind of like a cardboard. 
 * The object writing to the stencil buffer may or may not be drawn depending on its purpose
+
+
+##################################################################################################
+############################### VERTEX AND FRAGMENT SHADERS ######################################
+##################################################################################################
+--------------------------------------- The Anatomy ---------------------------------------
+* The vertex and fragment shaders usually employ together. They give a level of control over the shader that is not available through the use of subsurface shaders
+* They can control for example the acess or modification of the vertices of a model with a shader, or base the shader code on the model's relative geometry. 
+  With the subsurface shaders we could base the shader by the model position in the world
+* The vertex shader => gives access to each vertex in the model where you can set its color or manipulate its position
+* The fragment shader => provides per-pixel coloring, but can also access pixels relative to world position, allowing variety of techniques
+* In Unity, to create a simple vertex shader you choose to create an "Unlit Shader". Lighting and other stuff that the surface shader handles, is not handled in the vertex 
+  shaders
+* To put everything into context:
+	- We start with a virtual object in 3D world space. The data about each and every vertex is stored in the appdata
+	- This is processed by the vertex shader, which projects the 3D data into the 2D clipping space, and places values into the v2f struct
+	- By the time the fragment shader run, the scene has been "squashed" into the clipping space/plane, which is basically flattening all of the coordinates into 2D
+	- Then, the fragment shader can calculate the color of each pixel that needs to appear in the final screen render
