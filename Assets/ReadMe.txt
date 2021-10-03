@@ -472,3 +472,13 @@ https://docs.unity3d.com/Manual/HOWTO-alphamaps.html
 	- This is processed by the vertex shader, which projects the 3D data into the 2D clipping space, and places values into the v2f struct
 	- By the time the fragment shader run, the scene has been "squashed" into the clipping space/plane, which is basically flattening all of the coordinates into 2D
 	- Then, the fragment shader can calculate the color of each pixel that needs to appear in the final screen render
+	
+	
+##################################################################################################
+#################################### ADVANCED EFFECTS ############################################
+##################################################################################################
+--------------------------------------- WAVES ---------------------------------------
+* A wave can be mathematically created using the sin function. This returns the height of a wave over time
+* The height is called 'amplitude'
+* The length of the a wave measured between the same two heights is called 'wavelength'
+* The number of waves in a given amount of time is called the 'frequency'. The higher the frequency, the closer the waves are together
