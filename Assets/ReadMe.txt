@@ -482,3 +482,7 @@ https://docs.unity3d.com/Manual/HOWTO-alphamaps.html
 * The height is called 'amplitude'
 * The length of the a wave measured between the same two heights is called 'wavelength'
 * The number of waves in a given amount of time is called the 'frequency'. The higher the frequency, the closer the waves are together
+
+--------------------------------- Scrolling Textures --------------------------------
+* Often used with water, waterfalls, lava - mostly fluid things that you want to move
+* This can be achieved by updating the UV values so that they scroll across the surface of the mesh
