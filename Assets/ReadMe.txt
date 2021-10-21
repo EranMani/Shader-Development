@@ -114,7 +114,60 @@
 	Built-in RP is much more flexible and technical and does not have pre-optimization.
 	High Definition RP is pre-optimized to generate high-end graphics
 	Universal RP is pre-optimized for mid-range graphics
-
+	
+#####################################################################################
+######################## MATRICES AND COORDINATE SYSTEMS ############################
+#####################################################################################
+* A matrix is a list of numeric elements that follow certain arithmetic rules and are frequently used in computer graphics
+* In Unity, the matrices represent a spatial transformation:
+	UNITY_MATRIX_MVP - refers to the multiplication of three different matrices
+	UNITY_MATRIX_MV
+	UNITY_MATRIX_M - referes ot the model matrix
+	UNITY_MATRIX_V - referes ot the view matrix
+	UNITY_MATRIX_P - referes ot the projection matrix
+	UNITY_MATRIX_VP
+	UNITY_MATRIX_T_MV
+	UNITY_MATRIX_IT_MV
+	unity_ObjectToWorld
+	unity_WorldToObject
+	
+	 All these correspond to 4x4 matrices, which each of them has 4 rows and 4 columns of numerical values.
+	 UNITY_MATRIX
+	 (
+		Xx, Yx, Zx, Tx,
+		Xy, Yy, Zy, Ty,
+		Xz, Yz, Zz, Tz,
+		Xt, Yt, Zt, Tw 
+	 )
+	
+* A polygon object has two nodes by default - transform and shape, both in charge of calculating the position of the vertices in a space called object-space, which defines the
+  position of the vertices about the position of the object's center.
+  UNITY_MATRIX_M - The final value of each vertex in the object-space is multiplied by this model matrix, which allows to modify the transformation, rotation and scale values of 
+				   the vertices of an object. It is updated for every change made.
+				   
+				   Example -> transform a cube values using a model matrix
+				   - Start by taking a vertex of the cube that is at position XYZW [0.5, -0.5, -0.5, 1] relative to its center. The channel 'W' corresponds to a "homogeneous" system
+				     of coordinates that allows us to handle vectors and points uniformly.
+					 In matrix transformations, the W coordinate can have a value of zero or one. When 'W' equals 1, it refers to a point in space, whereas, when it equals 0,
+					 it refers to a direction in space.
+					 * W = 1 --> point in space
+					 * W = 0 --> direction in space
+					 
+* Matrices multiplication can only be carried out when the number of columns in the first matrix is equal to the number of rows in the second. 
+  The model matrix has 4x4 dimensions, and the vertex position has a dimension of 4x1.
+  Since the model matrix is equal to the number of rows in the vertex position, they can be multiplied and the result will be equal to a new matrix of 4x1, which would define 
+  a new vertex position. This multiplication process occurs for all vertices in our object and is carried out in the vertex shader stage in the shader.
+  
+* Object-space refers to the position of the vertices of an object concerning its center
+* World-space refers to the position of the vertices according to the center of the world (0,0,0,1). If we want to transform a space coordinate from object-space to world-space,
+  we can use the Built-in shader variable --> unity_ObjectToWorld
+* View-space refers to the position of a vertex of our object with the camera view. If we want to transform a space coordinate from world-space to view-space, we can use the
+  UNITY_MATRIX_V matrix
+* Clip-space (projection-space) refers to the position of a vertex of our object about the frustum of the camera. This factor will be affected by the camera's near clipping plane,
+  far clipping plane and field of view. To transform a space coordinate from view-space to clip-space, use the UNITY_MATRIX_P matrix
+* The polygonal object has been created in a three dimensional environment while the screen of our computer is two dimensional. therefore we will have to transform our object
+  from one space to another.
+	
 
 * Rendering Pipeline
 	- Rendering is the process of drawing a sene on the computer screen. It involoves mathmetical combination of geometry, textures, surface treatments, the viewers perspective
