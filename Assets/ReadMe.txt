@@ -1,3 +1,121 @@
+#####################################################################################
+################################# SHADER CONCEPTS ###################################
+#####################################################################################
+* Polygon: a closed plane figure bounded by straight lines
+* Primitive: a three-dimensional geometric object formed by polygons. The common ones are spheres, boxes, quads, cylinders and capsules - all have vertices, polygons, tangents, normals, 
+			 UV coordinates and colour, which are stored within a data type called "mesh". These properties can be accessed independently within a shader and keep them in vectors
+* Vertices: The vertices of an object corresponding to the set of points that define the area of a surface in either a two-dimensional or three-dimensional space
+				- They are children of the transform component
+				- They have a defined position according to the centre of the total volume of the object
+			There are two default nodes associated with an object - transform and shape.
+				- Transform node: defines the position, rotation and scale of an object about its pivot
+				- Shape node: child of the transform node. Contains the geometry attributes - the position of the object's vertices concerning its volume
+			With these two nodes we can move, rotate or scale the set of vertices of an object and at the same time, change the position of a specific point of vertices
+			* NOTE: POSITION [n] (semantic) --> gives access to the position of the vertices with its volume (aka VERTEX POSITION)
+* Normals: determines which is the front face of a surface. A normal corresponds to a perpendicular vector on the surface of a polygon which is used to determine the direction
+		   or orientation of a face or vertex
+* Tangents: The tangents follow the U coordinate (horizontal line) of the UVs on each geometry face (U = X axis, V = Y axis)
+* UV coordinates: they allow us to position a two-dimensional texture on the surface of a three-dimensional object. UVs act as reference points that control which pixels in the 
+				  texture map correspond to each vertex in the mesh.
+				  UV mapping: The process of positioning vertices over UV coordinates. It is a process by which UV that appears as a flattened, two-dimensional representation of
+							  the object's mesh is created, edited, and organised. In the shader we can use it to:
+									1) Position a texture on the 3D model
+									2) Save information in it
+				  The area of the UV coordinates is equal to a range between 0.0 and 1.0. "zero"[0.0,0.0] means the starting point and "one"[1.0,1.0] the end point
+* Vertex color: when exporting an object from a 3D software, it assigns a color to the object to be affected, either by lighting or replicating another color.
+				Such colour is known as -vertex color- and corresponds to the color white by default, having the values "one" in RGBA channels.
+				
+* Render pipeline architecture
+	here are three types of rendering pipeline - 
+		1) Built-in RP
+		2) Universal RP (LightWeight in previous versions)
+		3) High Definition RP
+		Each rendering pipeline has its characteristics, and depending on the type we are using (material properties, light sources, textures) will affected
+		the appearance and optimization on the screen
+		
+		Pipeline - a series of stages that perform a more significant task operation
+		Unity divides this architecture into 4 stages (which corresponds to the basic model of a RP in real time rendering engines):
+			1) Application - starts at the CPU and is responsible for various operations within a scene	
+				 * Collision detection
+				 * Texture animation
+				 * Keyboard input
+				 * Mouse input
+			   Its function is to read the stored data in memory to generate primitives later (triangles, lines, vertices). At the end, all this information
+			   is sent to the geometry processing phase to generate the vertices transformation through matrix multiplication
+			   
+			2) Geometry processing - the CPU requests the images that we see on our screen from the GPU. These requests are carried in two main steps:
+				 * The render state is configured, which corresponds to the set of stages from geometry processing up to pixel processing
+				 * The object is drawn on the screen
+			   This phase occurs on the GPU and is responsible for the vertex processing of the object. This phase is divided into four subprocesses which are:
+					1) Vertex transformation - when the primitives have already been assembled in the application stage, the vertex shading handles two main tasks:
+						* Calculates the vertices position of the object
+						* Transforms its position to different space coordinates in order to project them on the computer screen
+					   We can also select the properties that we want to pass on to the next stages, such as normals, tangents, UV coordinates etc..
+					2) Projection and Clipping - they will depend on the camera if it sets to perspective or orthographic (parallel). Objects that are inside
+					   the camera frustum will be projected and clipped on the screen. Objects that are not inside the camera frustrum will be discarded in the
+					   rendering process
+					3) Screen mapping - once the clipped objects are in memory, they are sent to the screen map. the three-dimensional objects that we have in the
+					   scene are transformed into screen coordinates (window coordinates)
+			3) Rasterisation - at this point, the objects have screen coordinates (2D) and now we look for the pixels in the projection area. This process finds
+			   all the pixels that are occupied by an on-screen object. It is a step of synchronisation between the objects in the scene and the pixels on the screen
+			   For each object, the rastersier performs two processes:
+					* Traingle setup - in charge of generating the data that will be sent to the triangle traversal. Includes the equations for the edges of an object on the
+									   screen
+					* Trinagle traversal - lists the pixels that are covered by the area of the polygon object. In this way, a group of pixels called "fragments" is generated 
+			4) Pixel processing - starts when all the pixels are ready to be projected onto the screen. Now, the fragment shader (or pixel shader) stage begins and is
+								  responsible for the visibility of each pixel. It computes the final color of a pixel and then send it to the color buffer
+		
+		Types of Render Pipeline - the built-in RP corresponds to the oldest engine while universal RP and high definition RP belong to a type of render pipeline called 
+								   scriptable RP, which is more up to date and has been pre-optimized for better graphics performance.
+								   A pipeline can have different processing paths, known as 'render paths'.
+								   Render Path - corresponds to a series of operations related to lighting and shading objects. This allows us to graphically process an illuminated scene
+												 Examples of these paths are forward rendering, deferred shading, legacy deferred and legacy vertex lit.
+												 The default rendering path in Unity corresponds to forward rendering, because it has greater graphics card compatibility and lighting
+												 calculation limit, which is more optimized
+												 Universal RP -> can use only forward as a rendering path
+												 High Definition RP -> can use either forward or deferred shading
+									
+								   The interaction between the light and the object is based on two points and is called the LIGHTING MODEL:
+										1) Lighting characteristics
+										2) Material characteristics
+								   The basic lighting model uses the properties:
+										1) Ambient color
+										2) Diffuse reflection
+										3) Specular reflection
+								   The lighting calculation is carried within the shader, per vertex or per fragment. When the illumination is calculated by vertex it is called
+								   per-vertex lighting and is performed in the vertex shader stage. In case of fragment, it is called per-fragment or per-pixel and is performed in the
+								   fragment shader stage.
+								   
+	Forward Rendering - the default rendering path and supports all typical features of a material (normal maps, pixel lighting, shadows). It has two different code written passes 
+						that can be used in the shader:
+							* Base pass - can define the ForwardBase light mode. It can process directional light per-pixel and will use the brightest light if there are multiple
+										  directional lights in the scene. It can also process light probes, GI and ambient illumination (skyLight)
+							* Additional pass - can define the ForwardAdd light mode. It can process additional lights per-pixel or shadows that affect the object. By using the 
+												additional pass, we can make multiple lights influence the target object instead of only one (in case of not using this pass)
+							Both are e characteristic functions of a shader with lighting calculation
+						Draw call - will be generated by each illuminated pass. It is a call graphic that is made in the GPU every time we want to draw an element on the screen 
+									of the computer. These calls are processes that require a large amount of computation, so they need to be kept to a MINIMUM possible, even more
+									when working for mobile devices.
+									Each object in the scene generates a call to the GPU by default.
+									The directional light in the scene influences all the objects, therefore it will generate an additional draw call for each object. This happens
+									because a second pass has been included in the shader to calculate the shadow projection.
+									1 direction light + 4 objects = will generate 8 draw calls in total (2 draw calls for each object, one for its existence and the other for the shadow)
+									If we add an additional pass to the base pass in the shader, then we are going to add a new draw call for each object and the graphic load will
+									increase significantly.
+	Deferred Shading - ensures that there is only one lighting pass computing each light source in the scene, and only in those pixels that are affected by them, all this by the
+					   separation of the geometry and lighting.
+					   It can generate a significant amount of light that affects different objects, improving the fidelity of the final render but increasing the per-pixel calculation
+					   on the GPU.
+					   While it is superior to forward when it comes to multi-light source computing, it brings with it several hardware compatibility restrictions and issues.
+
+	For a PC video game we can use any of the three unity render pipelines available, since a PC has larger computing power then a mobile device or a console.
+	* PC game with high definition -> use both High Definition RP and Built-in RP
+	* PC game with medium definition -> use both Universal RP and Built-in RP
+	Built-in RP is much more flexible and technical and does not have pre-optimization.
+	High Definition RP is pre-optimized to generate high-end graphics
+	Universal RP is pre-optimized for mid-range graphics
+
+
 * Rendering Pipeline
 	- Rendering is the process of drawing a sene on the computer screen. It involoves mathmetical combination of geometry, textures, surface treatments, the viewers perspective
 	  and lighting
