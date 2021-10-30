@@ -167,7 +167,335 @@
   far clipping plane and field of view. To transform a space coordinate from view-space to clip-space, use the UNITY_MATRIX_P matrix
 * The polygonal object has been created in a three dimensional environment while the screen of our computer is two dimensional. therefore we will have to transform our object
   from one space to another.
+  
+#####################################################################################
+############################### SHADERS IN UNITY ####################################
+#####################################################################################
+* Shader - a small program with the extension .Shader, which can be used to generate interesting effects. It has mathematical calculations and lists of instructions (commands)
+		   that allow color processing for EACH PIXEL within the area covered by an object on the computer screen.
+		   This program allows us to draw elements (using coordinate systems) based on the properties of a POLYGONAL object. 
+		   Shaders are executed by the GPU, since they have a parallel architecture that consists of thousands of small cores designed to solve tasks simultaneously. The CPU has
+		   been designed for sequential serial processing.
+* Unity has 3 types of files associated with shaders:
+	1) .shader -> capable of compiling in the different types of render pipelines
+	2) .shadergraph -> can only compile in either Universal RP or High Definition RP. The .hlsl file extension is linked to the .shadergraph, which allows to create customized functions
+	                   generally used within a node type called Custom Function
+	3) .cginc -> this file extension is linked to the .shader CGPROGRAM
+* Unity has at least 4 types of structures defined to generate shaders:
+	1) vertex shader
+	2) fragment shader
+	3) surface shader (automatic lighting calculation)
+	4) compute shader (more advanced concepts)
+* Introduction to the programming language
+	- In Unity there are 3 programming languages associated with shader development
+		* HLSL - High Level Shader Language (microsoft). From Unity version 2019 onwards, this is the official shader programming language
+		* Cg - C for graphics (NVIDIA). A high level programming language, designed to compile on most GPU's. It uses a syntax very similar to HLSL. Shaders that are working with the
+		       Cg language can compile both HLSL and GLSL (OpenGL Shading Language), accelerating and optimizing the process of creating materials for video games.
+			   When creating a shader, the code compiles in a field called CGPROGRAM (this might be changed in the future).		   
+		* ShaderLab - declarative language (Unity). All shaders in Unity (except shader graph and compute) are written within this declarative language. Its sytax allows to display
+					  the properties of shader in the Unity inspector. This can give the ability to manipulate the values of variables and vectors in real-time, adjusting the shader
+					  to get the desired result.
+					  Fallback - a fundamental code block in multiplatform games. It allows to compile a different shader to one that has generated an error. If the shader breaks
+								 in its compilation process, Fallback returns a different shader so that the graphics hardware can continue its work.
+					  SubShader - another code block that allows to declare commands and generate passes. A Cg/HLSL shader can contain more then one SubShader or pass. However,
+								  when using Scriptable RP, a shader can only contain one pass per SubShader
+* Shader types (Based on the selected render pipeline and the Unity version. With Universal RP or High Definition RP, it may have shader graph package with more shaders):
+	1) Standard Surface Shader - optimized code writing that interacts with a basic lighting model and works only in Built-in RP. You have 2 options for a shader that interacts with light:
+									* Unlit shader - add mathematical functions that allow lighting rendering on the material
+									* Standard surface shader - has a basic lighting model that includes albedo, specular and diffuse
+	2) Unlit Shader - is not affected by lighting. It is a basic color model and will be used as the base structure to start on. 
+					  It is ideal for low-end hardware (mobile devices). It doesnt have optimization in its code in order to see its complete structure and modify it accordingly.
+					  Works with Built-in, Universal and High Definition RP
+	3) Image Effect Shader - similar to an Unlit shader. Used mainly in post-processing effects in Built-in RP and require the function OnRenderImage(C#)
+	4) Compute Shader - runs on the graphics card, outside of the normal render pipeline and is structurally different from the other shaders.
+						Its extension is .compute and its programming language is HLSL.
+						Use this shader in specific cases to speed up some of the game processing
+	5) Ray Tracing Shader - experimental with the extension .raytrace. It allows ray tracing processing on the GPU. 
+							Works only in High Definition RP, and has some technical limitations with hardware.
+							You can use the ray tracing program to replace the .compute type shader in processing algorithms for GI, relfections, refraction or caustic
+							
 	
+#####################################################################################
+###################### PROPERTIES, COMMANDS AND FUNCTIONS ###########################
+#####################################################################################
+* Structure of a vertex / framgnet shader - the general structure will look like this. This will be the same for both Cg and HLSL.
+	Shader "InspectorPath/shaderName" // -> refers to the place where we will select the shader to apply it to a material, which will be through the Unity inspector
+									  // -> A shader cannot apply directly to a polygonal object, Instead, it will be applied to a previously created material.
+	{
+		Properties // -> a list of parameters that can be manipulated from the Unity inspector.
+		{
+			// properties in this field
+			PropertyName ("display name", type) = defaultValue // -> Syntax
+		}
+		SubShader
+		{
+			// SubShader configuration in this field
+			Pass
+			{
+				CGPROGRAM
+				// programa Cg - HLSL in this field
+				ENDCG
+			}
+		}
+		Fallback "ExampleOtherShader"
+	}
+	
+	Properties:
+		*Number and slider
+			name ("display name", Range(min, max)) = defaultValue
+			name ("display name", Float) = defaultValue
+			name ("display name", Int) = defaultValue
+			
+		*Color and vector
+			name ("display name", Color) = (R, G, B, A)
+			name ("display name", Vector) = (0, 0, 0, 1)
+			
+		*Texture 
+			name ("display name", 2D) = "defaultColorTexture" // to place a texture on the object we will create a 2D property for its texture and then pass it through the 
+																 function tex2D. The function will require 2 parameters - texture and UV coordinates of the object
+			name ("display name", Cube) = "defaultColorTexture" // The Cube refers to a Cubemap, which is used frequently in video games. This texture is useful for generating
+																// reflection maps (relfection in the character's armor or metallic elements in general)
+			name ("display name", 3D) = "defaultColorTexture" // Used less frequently then the previous ones since they are volumetric and have an additional coordinate for their spatial calculation
+		
+		*Material Property Drawer (can generate multiple states, allowing creation of dynamic effects without changing materials at execution time)
+			Toggle
+			Enum
+			KeywordEnum
+			PowerSlider
+			IntRange
+			Space
+			Header
+		
+			*MPD Toggle (allow switching from one state to another using a condition. A replacement for boolean type properties)
+				[Toggle] _PropertyName ("Display Name", Float) = 0 // 0 symbolizes OFF and 1 symbolizes ON
+				// !NOTE! -> To implement it in code, use the #pragma shader_feature, which generates different conditions depending on the state it is in
+				
+			* MPD KeywordEnum (generates a pop-up style menu in the material inspector. It allows to configure up to 9 different states for the shader)
+				[KeywordEnum(StateOff, State01, etc...)] --> StateOff corresponds to the default state
+				_PropertyName ("Display name", Float) = 0
+				// !NOTE! -> To implement it in code, use the #pragma shader_feature and multi_compile. The choice will depend on the number of variants that we want to include 
+							 in the final build
+							 
+			* MPD Enum (similar to the KeywordEnum with the difference that it can define a value/id as an argument and pass this property to a command to change it from the inspector)
+				[Enum(valor, id_00, valor, id_01, etc … )]
+				_PropertyName ("Display Name", Float) = 0
+				// !NOTE! -> do not use shader variatns, but are declared by command or function
+				
+			* MPD PowerSlider (allows to generate a non-linear slider with curve control)
+				[PowerSlider(3.0)] _PropertyName ("Display name", Range (0.01, 1)) = 0.08
+				
+			* MPD IntRange (adds a numerical range of integer values)
+				[IntRange] _PropertyName ("Display name", Range (0, 255)) = 100
+				// !NOTE! -> they have to be cleared within the CGPROGRAM as a conventional property.
+			
+			* MPD Space (allows to add space between one property and another. Helps in organization tasks)
+				_PropertyName01 ("Display name", Float ) = 0
+				// we add the space
+				[Space(10)] // add ten points of space between the properties
+				_PropertyName02 ("Display name", Float ) = 0
+				
+			* MPD Header (adds a reader in the Unity inspector. Useful when generating categories in our properties
+				// we add the header
+				[Header(Category name)]
+				_PropertyName01 ("Display name", Float ) = 0
+				_PropertyName02 ("Display name", Float ) = 0
+
+
+			
+
+
+	
+    NOTES: * The GPU will read the program from top to bottom in a linear manner. The order of functions is important to avoid errors and the use of Fallback which will assign	
+		     a different shader. 
+		     Example (the function is declared first, and after that used):
+		   
+				// 1 . declare our function
+				float4 ourFunction()
+				{
+					// your code here …
+				}
+				
+				// 2. we use the function
+				fixed4 frag (v2f i) : SV_Target
+				{
+					// we are using the function here
+					float4 f = ourFunction();
+					return f;
+				}
+				
+		   * When declaring a property, it remains "open" within the field of properties, therefore we must avoid the semi-colon (;) at the end of the line so the GPU can read the program 
+		
+		   * The property declaration will be written in ShaderLab declarative language while the program will be written in Cg or HLSL. Since they are two different languages, we
+		     have to create a "connection variables".
+			 connection variables - declared globally by using the word "uniform" (this step is skipped). The global variable name must use the same property name so that the program
+			 can recognize them
+			 
+			Shader "InspectorPath/shaderName"
+			{
+				Properties
+				{
+					// declare the properties
+					_MainTex ("Texture", 2D) = "white" {} <--
+					_Color ("Color", Color) = (1, 1, 1, 1) <--
+				}
+				SubShader
+				{
+					Pass
+					{
+						CGPROGRAM
+						…
+						// add connection variables
+						sampler2D _MainTex; <--
+						float4 _Color; <--
+						…
+						half4 frag (v2f i) : SV_Target
+						{
+							// use the variables
+							half4 col = tex2D(_MainTex, i.uv); <--
+							return col * _Color; <--
+						}
+						ENDCG
+					}
+				}
+			}
+			
+		* Example for using a Toggle in code
+			!NOTE! -> shader_feature cannot compile multiple variants for an application. Unity will not unclude variants that we are not using in the final build
+					  this means that we will not be able to move from one state to another at execution time. Use KeywordEnum to fix the issue.
+			Shader "InspectorPath/shaderName"
+			{
+				Properties
+				{
+				_Color ("Color", Color) = (1, 1, 1, 1)
+				// declare drawer Toggle
+				[Toggle] _Enable ("Enable ?", Float) = 0 // <--
+				}
+				SubShader
+				{
+					Pass
+					{
+						CGPROGRAM
+						…
+						// declare pragma
+						#pragma shader_feature _ENABLE_ON // <-- the variants in shader_feature are "constants", written in capitals. _Enable = _ENABLE
+														  // <-- The word _ON corresponds to the default state of the toggle
+						…
+						float4 _Color;
+						…
+						half4 frag (v2f i) : SV_Target
+						{
+							half4 col = tex2D(_MainTex, i.uv);
+							// generate conditions
+						#if _ENABLE_ON // <--
+						return col;
+						#else
+						return col * _Color;
+						#endif
+						}
+					ENDCG
+					}
+				}
+			}
+			
+		* shader_feature will only export the selected variant from the material inspector
+		* multi_compile exports all variants that are fouund in the shader, regardless of whether they are used or not. It is great for exporting or compiling multiple states that
+		  will change at execution time
+		  
+		* Example for using the multi_compile
+			Shader "InspectorPath/shaderName"
+			{
+				Properties
+				{
+					// declare drawer Toggle
+					[KeywordEnum(Off, Red, Blue)] <-- configure 3 states (Off, Red and Blue)
+					_Options ("Color Options", Float) = 0 <--
+				}
+				SubShader
+					{
+					[ 36 ]
+					Pass
+					{
+						CGPROGRAM
+						…
+						// declare pragma and conditions
+						#pragma multi_compile _OPTIONS_OFF _OPTIONS_RED _OPTIONS_BLUE <-- declare the states as constants
+						…
+						half4 frag (v2f i) : SV_Target
+						{
+							half4 col = tex2D(_MainTex, i.uv);
+							// generate conditions
+							#if _OPTIONS_OFF
+							return col;
+							#elif _OPTIONS_RED
+							return col * float4(1, 0, 0, 1);
+							#elif _OPTIONS_BLUE
+							return col * float4(0, 0, 1, 1);
+							#endif
+						}
+						ENDCG
+					}
+				}
+			}
+		* Example for using Enum
+			Shader "InspectorPath/shaderName"
+			{
+				Properties
+				{
+					// declare drawer
+					[Enum(Off, 0, Front, 1, Back, 2)] <--
+					_Face ("Face Culling", Float) = 0 <--
+				}
+				SubShader
+				{
+					// we use the property as a command
+					Cull [_Face]
+					Pass { … }
+				}
+			}
+			
+		* Example for using IntRange & PowerSlider
+			Shader "InspectorPath/shaderName"
+			{
+				Properties
+				{
+					// declare drawer
+					[PowerSlider(3.0)] <--
+					_Brightness ("Brightness", Range (0.01, 1)) = 0.08 <--
+					[IntRange] <--
+					_Samples ("Samples", Range (0, 255)) = 100 <--
+				}
+				SubShader
+				{
+					Pass
+					{
+					CGPROGRAM
+					…
+					// generate connection variables
+					float _Brightness; <--
+					int _Samples; <--
+					…
+					ENDCG
+					}
+				}
+			}
+			
+		* Example for using Header and Space
+			Shader "InspectorPath/shaderName"
+			{
+			Properties
+			{
+				[Header(Specular properties)] <--
+				_Specularity ("Speculatrity", Range (0.01, 1)) = 0.08
+				_Brightness ("Brightness", Range (0.01, 1)) = 0.08
+				_SpecularColor ("Specular Color", Color) = (1, 1, 1 , 1)
+				[Space(20)] <-- 
+				[Header(Texture properties)] <--
+				_MainTex ("Texture", 2D) = "white" {}
+			}
+				SubShader { … }
+			}
+
+
 
 * Rendering Pipeline
 	- Rendering is the process of drawing a sene on the computer screen. It involoves mathmetical combination of geometry, textures, surface treatments, the viewers perspective
